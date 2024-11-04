@@ -31,19 +31,18 @@ export async function createExpenseServer(
   }
 }
 
-export function deleteExpense(
+export async function deleteExpense(
   req: Request,
   res: Response,
-  expenses: Expense[]
+  db: Database
 ) {
   const { id } = req.params;
-  const index = expenses.findIndex((expense) => expense.id === id);
-
-  if (index === -1) {
+  console.log(id);
+  const idTuple = await db.all("SELECT id FROM expenses WHERE id = ?;", [id]);
+  if (idTuple.length === 0) {
     return res.status(404).send({ error: "Expense not found" });
   }
-
-  expenses.splice(index, 1);
+  await db.run("DELETE FROM expenses WHERE id = ?;", [id]);
   res.status(204).send();
 }
 
